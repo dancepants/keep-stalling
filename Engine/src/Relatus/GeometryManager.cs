@@ -280,7 +280,7 @@ namespace Relatus
         {
             GeometryData shapeData = CreateRegularPolygon(3);
             shapeData.Managed = true;
-            RegisterShapeData("Morro_Triangle", shapeData);
+            RegisterShapeData("Relatus_Triangle", shapeData);
         }
 
         private static void RegisterRightTriangle()
@@ -300,7 +300,7 @@ namespace Relatus
                 true
             );
 
-            RegisterShapeData("Morro_RightTriangle", rightTriangleData);
+            RegisterShapeData("Relatus_RightTriangle", rightTriangleData);
         }
 
         private static void RegisterSquare()
@@ -322,14 +322,14 @@ namespace Relatus
                 true
             );
 
-            RegisterShapeData("Morro_Square", squareData);
+            RegisterShapeData("Relatus_Square", squareData);
         }
 
         private static void RegisterCircle()
         {
             GeometryData shapeData = CreateRegularPolygon(90);
             shapeData.Managed = true;
-            RegisterShapeData("Morro_Circle", shapeData);
+            RegisterShapeData("Relatus_Circle", shapeData);
         }
 
         private static void RegisterStar()
@@ -366,7 +366,7 @@ namespace Relatus
                 j++;
             }
 
-            RegisterShapeData("Morro_Star", new GeometryData(vertices.ToArray(), indices.ToArray(), true));
+            RegisterShapeData("Relatus_Star", new GeometryData(vertices.ToArray(), indices.ToArray(), true));
         }
     }
 }

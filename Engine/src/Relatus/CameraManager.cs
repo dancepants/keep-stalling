@@ -69,7 +69,7 @@ namespace Relatus
         /// <returns>The registered camera with the given name.</returns>
         public static Camera GetCamera(CameraType cameraType)
         {
-            return GetCamera($"Morro_{cameraType}");
+            return GetCamera($"Relatus_{cameraType}");
         }
 
         /// <summary>
