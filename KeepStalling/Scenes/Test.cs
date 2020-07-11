@@ -133,8 +133,12 @@ namespace KeepStalling
             // FArts
             if (input.Pressing("fart"))
             {
-                Vector2 offset = Vector2Ext.Random() * MoreRandom.Next(4, 32 + 1);
-                farts.Add(new Gas(player.X + offset.X, player.Y + offset.Y));
+                int total = MoreRandom.Next(4, 32);
+                for (int i = 0; i < total; i++)
+                {
+                    Vector2 offset = Vector2Ext.Random() * MoreRandom.Next(4, 32 + 1);
+                    farts.Add(new Gas(player.X + offset.X, player.Y + offset.Y));
+                }
 
                 Camera.Shake(50, 4, 250);
 
