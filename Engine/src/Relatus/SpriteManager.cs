@@ -45,6 +45,11 @@ namespace Relatus
             return spriteDataLookup.Get(name);
         }
 
+        public static Sprite CreateSprite(string name)
+        {
+            return new Sprite(0, 0, name);
+        }
+
         /// <summary>
         /// Remove registered <see cref="SpriteData"/>.
         /// </summary>
