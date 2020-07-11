@@ -114,6 +114,30 @@
 /processorParam:TextureFormat=Color
 /build:Assets/Fonts/sparge_0.png
 
+#begin Assets/Sound Effects/fart_0.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Assets/Sound Effects/fart_0.wav
+
+#begin Assets/Sound Effects/fart_1.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Assets/Sound Effects/fart_1.wav
+
+#begin Assets/Sound Effects/fart_5.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Assets/Sound Effects/fart_5.wav
+
+#begin Assets/Sound Effects/walk.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Assets/Sound Effects/walk.wav
+
 #begin Assets/Sprites/Sprites.png
 /importer:TextureImporter
 /processor:TextureProcessor
