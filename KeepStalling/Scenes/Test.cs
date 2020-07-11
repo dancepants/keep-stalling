@@ -131,7 +131,7 @@ namespace KeepStalling
             player.Rotation = (float)Math.Sin(dt * 0.01f) * amplitude;
 
             // FArts
-            if (input.Pressing("fart"))
+            if (input.Pressed("fart"))
             {
                 int total = MoreRandom.Next(4, 32);
                 for (int i = 0; i < total; i++)
@@ -149,7 +149,12 @@ namespace KeepStalling
                     canFart = false;
                     fartSoundTracker.Reset();
                     fartSoundTracker.Start();
+
                 }
+            }
+            else
+            {
+                player.Scale = Vector2.One;
             }
 
 
@@ -157,12 +162,13 @@ namespace KeepStalling
             {
                 fartSoundTracker.Update();
 
+                player.Scale = new Vector2((float)Math.Cos(Engine.TotalGameTime.Milliseconds) * 0.25f + 1, (float)Math.Sin(Engine.TotalGameTime.Milliseconds) * 0.25f + 1);
+
                 if (fartSoundTracker.Done)
                 {
                     canFart = true;
                 }
             }
-
 
             for (int i = farts.Count - 1; i >= 0; i--)
             {
