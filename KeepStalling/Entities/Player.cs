@@ -30,7 +30,7 @@ namespace KeepStalling {
 
         public Player(float x, float y) : base(x, y, 98, 128)
         {
-            sprite = new Sprite(0, 0, "player");
+            sprite = new Sprite(x, y, "player");
             sprite.RotationOffset = new Vector2(sprite.Width / 2, sprite.Height / 2);
 
             InputProfile iprofile = new InputProfile("player")
