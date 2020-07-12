@@ -62,15 +62,6 @@ namespace KeepStalling
         }
 
         public bool Collides(RectangleF rectangle) {
-            // float xMin = 0;
-            // float xMax = 0;
-
-            // // Check if the circle is in the rectangle
-            // if (new RectangleF(Circle.Center.X, Circle.Center.Y, 1, 1).Intersects(rectangle)){
-
-            // }
-
-            // // If not, find the closest point.
             float rectX = Circle.X, rectY = Circle.Y;    
 
             if (Circle.X < rectangle.X) rectX = rectangle.X;
