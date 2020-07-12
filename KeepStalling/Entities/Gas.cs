@@ -20,6 +20,10 @@ namespace KeepStalling
         private Color initialColor;
 
         private static Color[] colors;
+
+
+        private float fartOffset;
+
         static Gas()
         {
             colors = new Color[] { new Color(14, 56, 15), new Color(48, 98, 48), new Color(139, 172, 15), new Color(155, 188, 15) };
@@ -54,9 +58,18 @@ namespace KeepStalling
             return this;
         }
 
+        public void MoreT() {
+            fartOffset = (float)MoreRandom.NextDouble(0.2, 0.8);
+            //Circle.ApplyChanges();
+        }
+
 
         public Gas Bounce() {
-            MultiplyToVelocity(-0.5f, -0.5f);
+            if (Math.Abs(velocity.X) > Math.Abs(velocity.Y)) {
+                MultiplyToVelocity(-0.5f, 0.5f);
+            } else {
+                MultiplyToVelocity(0.5f, -0.5f);
+            }
 
             return this;
         }
@@ -97,7 +110,7 @@ namespace KeepStalling
             Circle.X += velocity.X * Engine.DeltaTime;
             Circle.Y += velocity.Y * Engine.DeltaTime;
             Circle.Radius -= rateOfDecay * Engine.DeltaTime;
-            Circle.Color = new Color(initialColor, Circle.Radius / initialRadius);
+            Circle.Color = new Color(initialColor, Circle.Radius / initialRadius - fartOffset);
             Circle.ApplyChanges();
 
             if (Circle.Radius <= 1)

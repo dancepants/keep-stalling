@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using Relatus.Graphics.Effects;
 using Relatus;
 using Relatus.ECS;
 using Relatus.Graphics;
@@ -17,7 +19,7 @@ namespace KeepStalling
 
         public Table(float x, float y, int index) : base(x, y, 139, 41)
         {
-            Depth = (int) Y;
+            Depth = (int) (Y + Height);
             sprite = new Sprite(x, y, "table");
             id = index;
         }
@@ -62,12 +64,10 @@ namespace KeepStalling
 
         public override void Draw(Camera camera)
         {
-            Sketch.Begin();
-            {
-                sprite.Draw(camera);
-                //new Quad(Bounds.X, Bounds.Y, Bounds.Width, Bounds.Height).Draw(cam);
-            }
-            Sketch.End();
+
+
+
+            sprite.Draw(camera);
         }
     }
 }

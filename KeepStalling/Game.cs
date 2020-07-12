@@ -1,17 +1,22 @@
 using Relatus;
 
-namespace KeepStalling {
-    class Game : Engine {
-        protected override void Initialize() {
+namespace KeepStalling
+{
+    class Game : Engine
+    {
+        protected override void Initialize()
+        {
             base.Initialize();
 
             WindowManager.SetTitle("Keep Stalling");
             WindowManager.SetGameResolution(384, 216);
 
             AssetManager.LoadImage("sheet", "Assets/Sprites/Sprites");
-            SpriteManager.RegisterSpriteData("player", 386, 0, 96, 128, "sheet");
-            SpriteManager.RegisterSpriteData("background", 0, 0, 384, 216, "sheet");
-            SpriteManager.RegisterSpriteData("table", 0, 216, 139, 80, "sheet");
+            SpriteManager.RegisterSpriteData("chair", 1, 256 - 134, 72, 104, "sheet");
+            SpriteManager.RegisterSpriteData("coworker", 125, 256 - 255, 60, 113, "sheet");
+            SpriteManager.RegisterSpriteData("coworker2", 1, 256 - 255, 50, 119, "sheet");
+            SpriteManager.RegisterSpriteData("table", 75, 256 - 134, 139, 80, "sheet");
+            SpriteManager.RegisterSpriteData("player", 53, 256 - 255, 70, 113, "sheet");
 
             AssetManager.LoadSoundEffect("fart_0", "Assets/Sound Effects/fart_0");
             AssetManager.LoadSoundEffect("fart_1", "Assets/Sound Effects/fart_1");

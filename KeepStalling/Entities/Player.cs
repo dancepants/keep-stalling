@@ -23,10 +23,12 @@ namespace KeepStalling
         private bool canStep;
 
         private Timer fartSoundTracker;
-        private bool canFart;
+        public bool CanFart;
 
         private Timer airCooldown;
         private Timer airTimer;
+
+        private Timer fartTimer;
 
         private float dt, dtSpeed, amplitude, targetAmplitude;
 
@@ -43,7 +45,6 @@ namespace KeepStalling
                 .RegisterMapping(new InputMapping("Down") { Keys = new Keys[] { Keys.S, Keys.Down }, GamepadButtons = new Buttons[] { Buttons.DPadDown, Buttons.LeftThumbstickDown, Buttons.RightThumbstickDown } })
                 .RegisterMapping(new InputMapping("Left") { Keys = new Keys[] { Keys.A, Keys.Left }, GamepadButtons = new Buttons[] { Buttons.DPadLeft, Buttons.LeftThumbstickLeft, Buttons.RightThumbstickLeft } })
                 .RegisterMapping(new InputMapping("Right") { Keys = new Keys[] { Keys.D, Keys.Right }, GamepadButtons = new Buttons[] { Buttons.DPadRight, Buttons.LeftThumbstickRight, Buttons.RightThumbstickRight } })
-                .RegisterMapping(new InputMapping("Fart") { Keys = new Keys[] { Keys.Space }, GamepadButtons = new Buttons[] { Buttons.LeftShoulder, Buttons.RightShoulder } })
                 .RegisterMapping(new InputMapping("Air") { Keys = new Keys[] { Keys.LeftShift }, GamepadButtons = new Buttons[] { Buttons.LeftTrigger, Buttons.RightTrigger } });
 
             input = new InputHandler(PlayerIndex.One);
@@ -55,12 +56,15 @@ namespace KeepStalling
             canStep = true;
 
             fartSoundTracker = new Timer(200);
-            canFart = true;
+            CanFart = true;
 
             airCooldown = new Timer(1000);
             airTimer = new Timer(500);
             airCooldown.Start();
             airTimer.Start();
+
+            fartTimer = new Timer(2500);
+            fartTimer.Start();
 
             debugBounds = new Quad(X, Y, Width, Height)
             {
@@ -82,7 +86,7 @@ namespace KeepStalling
         public override void SetPosition(float x, float y)
         {
             base.SetPosition(x, y);
-            Depth = (int) Y;
+            Depth = (int) (Y + Height);
 
             sprite.SetPosition(X + Width / 2, Y + Height / 2);
             debugBounds.SetPosition(X, Y);
@@ -169,26 +173,30 @@ namespace KeepStalling
             sprite.Scale = new Vector2((float)Math.Sin(dt * 0.01f) * 0.1f + 1, 1);
 
             // FArts
-            if (input.Pressed("fart"))
+            fartTimer.Update();
+            if (fartTimer.Done)
             {
-                int total = MoreRandom.Next(4, 32);
-                for (int i = 0; i < total; i++)
-                {
-                    Vector2 offset = Vector2Ext.Random() * MoreRandom.Next(16, 48 + 1);
-                    Farts.Add(new Gas(sprite.X + offset.X, sprite.Y + offset.Y));
+                if (MoreRandom.NextDouble(0, 1) < 0.25) {
+                    int total = MoreRandom.Next(16, 64);
+                    for (int i = 0; i < total; i++)
+                    {
+                        Vector2 offset = Vector2Ext.Random() * MoreRandom.Next(16, 48 + 1);
+                        Farts.Add(new Gas(sprite.X + offset.X, sprite.Y + offset.Y));
+                    }
+
+
+                    if (CanFart)
+                    {
+
+                        SoundManager.PlaySoundEffect($"fart_{MoreRandom.Next(0, 3)}", 0.8f);
+                        CanFart = false;
+                        fartSoundTracker.Reset();
+                        fartSoundTracker.Start();
+
+                    }
                 }
-
-                SceneManager.CurrentScene.Camera.Shake(50, 4, 250);
-
-                if (canFart)
-                {
-
-                    SoundManager.PlaySoundEffect($"fart_{MoreRandom.Next(0, 3)}", 0.8f);
-                    canFart = false;
-                    fartSoundTracker.Reset();
-                    fartSoundTracker.Start();
-
-                }
+                fartTimer.Reset();
+                fartTimer.Start();
             }
 
             if (input.Pressing("air"))
@@ -206,6 +214,7 @@ namespace KeepStalling
                         {
                             g.AddToVelocity(-playerVelocity.X * 100, -playerVelocity.Y * 100);
                         }
+                        g.MoreT();
                         Farts.Add(g);
                     }
                     if (airTimer.Done)
@@ -222,7 +231,7 @@ namespace KeepStalling
                 airCooldown.Update();
             }
 
-            if (!canFart)
+            if (!CanFart)
             {
                 fartSoundTracker.Update();
 
@@ -230,7 +239,7 @@ namespace KeepStalling
 
                 if (fartSoundTracker.Done)
                 {
-                    canFart = true;
+                    CanFart = true;
                 }
             }
 
@@ -249,6 +258,26 @@ namespace KeepStalling
             TableCollision();
 
             DebugManager.GetDebugEntry("playerPos").SetInformation(X, Y);
+
+
+            if (Bounds.Right < 0) {
+                SetPosition(WindowManager.PixelWidth * 2 - Width, Y);
+            }
+
+            if (Bounds.Left > WindowManager.PixelWidth * 2) {
+                SetPosition(4, Y);
+            }
+
+            
+            if (Bounds.Bottom < 0) {
+                SetPosition(X, WindowManager.PixelHeight * 2 - Width);
+            }
+
+            if (Bounds.Top > WindowManager.PixelHeight * 2) {
+                SetPosition(X, 4);
+            }
+
+
         }
 
         private void TableCollision()
@@ -280,36 +309,8 @@ namespace KeepStalling
 
         public override void Draw(Camera cam)
         {
-            if (!canFart)
-            {
-                Sketch.AttachEffect(new Invert());
-            }
-
-            Sketch.AttachEffect(new Outline(Engine.RenderTarget, 1, new Color(Color.Black, 0.25f)));
-            Sketch.AttachEffect(new ChromaticAberration(Engine.RenderTarget, 4, new Vector2(1, 0), new Vector2(0, 1), new Vector2(1, 1)));
-            //Sketch.DisableRelay();
-            Sketch.Begin();
-            {
-                // Not sure about tgus!
-                Polygon[] polygons = new Polygon[Farts.Count];
-                for (int i = 0; i < polygons.Length; i++)
-                {
-                    polygons[i] = Farts[i].Circle;
-
-                }
-                Batcher.DrawPolygons(polygons, cam);
-
-                // foreach (Gas g in Farts){
-                //     g.Draw(Camera);
-                // }
-            }
-            Sketch.End();
-            //SketchHelper.ApplyGaussianBlur(Sketch.InterceptRelay(), 1);
 
 
-            Sketch.AttachEffect(new DropShadow(Engine.RenderTarget, new Vector2(1, 1), 4, new Color(Color.Black, 100)));
-            Sketch.Begin();
-            {
                 sprite.Draw(cam);
 
 
@@ -317,9 +318,6 @@ namespace KeepStalling
                 {
                     debugBounds.Draw(cam);
                 }
-            }
-            Sketch.End();
-
 
         }
     }

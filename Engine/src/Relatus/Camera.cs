@@ -432,10 +432,10 @@ namespace Relatus
 
         public virtual void Update()
         {
+            UpdateShaking();
             UpdateTracking();
             UpdateSmoothTracking();
             //StayWithinBounds();
-            UpdateShaking();
         }
     }
 }
