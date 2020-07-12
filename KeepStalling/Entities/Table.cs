@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Relatus;
 using Relatus.Graphics;
 
@@ -6,11 +7,9 @@ namespace KeepStalling
     class Table : RelatusObject
     {
         private Sprite sprite;
-        private Quad area;
-        public Table(float x, float y) : base(x, y, 139, 41)
+        public Table(float x, float y) : base(x, y, 139, 80)
         {
             sprite = new Sprite(x, y, "table");
-            area = new Quad(x, y, 139, 41);
         }
 
         public override bool Equals(object obj)
@@ -39,9 +38,13 @@ namespace KeepStalling
             return base.ToString();
         }
 
-        public void Update()
+        public void Update(List<Gas> gasses)
         {
-            
+           foreach (Gas g in gasses) {
+               if (g.Collides(Bounds)) {
+                   g.Bounce();
+               }
+           }
         }
 
         public void Draw(Camera cam)

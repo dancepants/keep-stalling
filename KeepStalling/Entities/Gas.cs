@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Relatus;
 using Relatus.Graphics;
@@ -45,6 +46,46 @@ namespace KeepStalling
             velocity += new Vector2(x,y);
 
             return this;
+        }
+
+        public Gas MultiplyToVelocity(float x, float y) {
+            velocity = new Vector2(velocity.X * x, velocity.Y * y);
+            
+            return this;
+        }
+
+
+        public Gas Bounce() {
+            MultiplyToVelocity(-0.5f, -0.5f);
+
+            return this;
+        }
+
+        public bool Collides(RectangleF rectangle) {
+            // float xMin = 0;
+            // float xMax = 0;
+
+            // // Check if the circle is in the rectangle
+            // if (new RectangleF(Circle.Center.X, Circle.Center.Y, 1, 1).Intersects(rectangle)){
+
+            // }
+
+            // // If not, find the closest point.
+            float rectX = Circle.X, rectY = Circle.Y;    
+
+            if (Circle.X < rectangle.X) rectX = rectangle.X;
+            else if (Circle.X > rectangle.X + rectangle.Width) rectX = rectangle.X + rectangle.Width;
+
+            if (Circle.Y < rectangle.Y) rectY = rectangle.Y;
+            else if (Circle.Y > rectangle.Y + rectangle.Height) rectY = rectangle.Y + rectangle.Height;
+
+            float dx = Circle.X - rectX;
+            float dy = Circle.Y - rectY;
+            
+            if (Math.Sqrt(dx * dx + dy * dy) <= Circle.Radius) {
+                return true;
+            }
+            return false;
         }
 
         public Gas Crazy()

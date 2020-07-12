@@ -14,12 +14,16 @@ namespace KeepStalling
 {
     class Test : Scene
     {
+        private List<Table> tables;
         private Sprite background;
         private Player player;
         public Test(string name) : base(name)
         {
+            tables = new List<Table>();
             background = new Sprite(0, 0, "background");
             player = new Player(0, 0);
+
+            tables.Add(new Table(50, 50));
         }
 
         public override void LoadScene()
@@ -32,17 +36,19 @@ namespace KeepStalling
 
         public override void Update()
         {
+            foreach (Table t in tables) t.Update(player.farts);
             player.Update(Camera);
         }
         public override void Draw()
         {
             Sketch.Begin();
             {
-                background.Draw(Camera);
+                // background.Draw(Camera);
             }
             Sketch.End();
-            // Player.Draw begins and ends Sketch internally
+            // The following objects begins and ends Sketch internally
             player.Draw(Camera);
+            foreach (Table t in tables) t.Draw(Camera);
         }
     }
 }

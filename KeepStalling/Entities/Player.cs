@@ -10,10 +10,11 @@ using Relatus.Maths;
 using Microsoft.Xna.Framework.Input;
 using Relatus.Utilities;
 
-namespace KeepStalling {
+namespace KeepStalling
+{
     class Player : RelatusObject
     {
-        private List<Gas> farts;
+        public List<Gas> farts { get; }
         private InputHandler input;
         private Sprite sprite;
 
@@ -43,7 +44,7 @@ namespace KeepStalling {
 
             input = new InputHandler(PlayerIndex.One);
             input.LoadProfile(iprofile);
-            
+
             farts = new List<Gas>();
 
             stepSoundTracker = new Timer(400);
@@ -183,7 +184,8 @@ namespace KeepStalling {
 
             if (input.Pressing("air"))
             {
-                if (airCooldown.Done) {
+                if (airCooldown.Done)
+                {
                     airTimer.Update();
                     int total = MoreRandom.Next(4, 8);
                     for (int i = 0; i < total; i++)
@@ -197,7 +199,8 @@ namespace KeepStalling {
                         }
                         farts.Add(g);
                     }
-                    if (airTimer.Done) {
+                    if (airTimer.Done)
+                    {
                         airCooldown.Reset();
                         airTimer.Reset();
                         airCooldown.Start();
