@@ -1,14 +1,10 @@
+using Microsoft.Xna.Framework;
 using Relatus;
 using Relatus.ECS;
 using Relatus.Graphics;
-using Relatus.Input;
-using Microsoft.Xna.Framework;
-using System;
+using Relatus.Maths;
 using Relatus.Graphics.Effects;
 using System.Collections.Generic;
-using Relatus.Maths;
-using Microsoft.Xna.Framework.Input;
-using Relatus.Utilities;
 
 namespace KeepStalling
 {
@@ -31,7 +27,7 @@ namespace KeepStalling
             entities.Add(Player);
 
             quad = new Quad(0, 0, WindowManager.PixelWidth * 2, WindowManager.PixelHeight * 2) { Color = Color.Gray };
-            quad.ApplyChanges();    
+            quad.ApplyChanges();
 
             for (int y = 0; y < WindowManager.PixelHeight * 2 / 41; y++)
             {
@@ -44,16 +40,6 @@ namespace KeepStalling
                 }
             }
 
-
-            // Tables.Add(new Table(150, 50, Tables.Count));
-            // Tables.Add(new Table(300, 50, Tables.Count));
-            // Tables.Add(new Table(150, 150, Tables.Count));
-            // Tables.Add(new Table(300, 150, Tables.Count));
-            // Tables.Add(new Table(150, 250, Tables.Count));
-            // Tables.Add(new Table(300, 250, Tables.Count));
-            // Tables.Add(new Table(150, 350, Tables.Count));
-            // Tables.Add(new Table(300, 350, Tables.Count));
-
             TableQuadtree = new Quadtree<Table>(new RectangleF(0, 0, WindowManager.PixelWidth * 2, WindowManager.PixelHeight * 2), 256);
 
             foreach (Table t in Tables)
@@ -63,9 +49,6 @@ namespace KeepStalling
             }
 
             entities.Add(new Worker(0, 0, true, true));
-
-            entities.Sort();
-
         }
 
         public override void LoadScene()
@@ -78,22 +61,26 @@ namespace KeepStalling
 
         public override void Update()
         {
-
             foreach (Entity e in entities) e.Update();
 
             Camera.SmoothTrack(Player.Center);
+
+            entities.Sort();
         }
         public override void Draw()
         {
             Sketch.CreateBackgroundLayer(Color.White);
 
+            Sketch.Begin();
+            {
+                quad.Draw(Camera);
+            }
+            Sketch.End();
 
             Sketch.AttachEffect(new Outline(Engine.RenderTarget, 1, new Color(Color.Black, 0.25f)));
             Sketch.AttachEffect(new ChromaticAberration(Engine.RenderTarget, 4, new Vector2(1, 0), new Vector2(0, 1), new Vector2(1, 1)));
             Sketch.Begin();
             {
-
-                quad.Draw(Camera);
 
                 Polygon[] polygons = new Polygon[Player.Farts.Count];
                 for (int i = 0; i < polygons.Length; i++)
