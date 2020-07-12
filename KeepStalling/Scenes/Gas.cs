@@ -11,7 +11,7 @@ namespace KeepStalling
     {
         public bool Lingering { get; private set; }
 
-        private Circle circle;
+        public Circle Circle {get; private set;}
         private float rateOfDecay;
 
         private Vector2 velocity;
@@ -29,16 +29,30 @@ namespace KeepStalling
             initialRadius = MoreRandom.Next(8, 17);
             initialColor = colors[MoreRandom.Next(0, colors.Length)];
 
-            circle = new Circle(x, y, initialRadius)
+            Circle = new Circle(x, y, initialRadius)
             {
                 Color = initialColor
             };
-            circle.ApplyChanges();
+            Circle.ApplyChanges();
 
             velocity = Vector2Ext.Random() * MoreRandom.Next(25, 120);
 
             rateOfDecay = (float)MoreRandom.NextDouble(8, 40);
             Lingering = true;
+        }
+
+        public Gas AddToVelocity(float x, float y){
+            velocity += new Vector2(x,y);
+
+            return this;
+        }
+
+        public Gas Crazy()
+        {
+            velocity *= (float)MoreRandom.NextDouble(0.5, 0.7);
+            rateOfDecay *= (float)MoreRandom.NextDouble(0.1, 0.5);
+
+            return this;
         }
 
         public void Update()
@@ -48,13 +62,13 @@ namespace KeepStalling
                 return;
             }
 
-            circle.X += velocity.X * Engine.DeltaTime;
-            circle.Y += velocity.Y * Engine.DeltaTime;
-            circle.Radius -= rateOfDecay * Engine.DeltaTime;
-            circle.Color = new Color(initialColor, circle.Radius / initialRadius);
-            circle.ApplyChanges();
+            Circle.X += velocity.X * Engine.DeltaTime;
+            Circle.Y += velocity.Y * Engine.DeltaTime;
+            Circle.Radius -= rateOfDecay * Engine.DeltaTime;
+            Circle.Color = new Color(initialColor, Circle.Radius / initialRadius);
+            Circle.ApplyChanges();
 
-            if (circle.Radius <= 1)
+            if (Circle.Radius <= 1)
             {
                 Lingering = false;
             }
@@ -63,7 +77,7 @@ namespace KeepStalling
 
         public void Draw(Camera camera)
         {
-            circle.Draw(camera);
+            Circle.Draw(camera);
         }
     }
 }

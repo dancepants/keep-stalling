@@ -39,11 +39,13 @@ namespace KeepStalling
             background = new Sprite(0, 0, "background");
 
             InputProfile profile = new InputProfile("player")
-                .RegisterMapping(new InputMapping("Up") { Keys = new Keys[] { Keys.W, Keys.Up }, GamepadButtons = new Buttons[] { Buttons.DPadDown, Buttons.LeftThumbstickDown, Buttons.RightThumbstickDown } })
-                .RegisterMapping(new InputMapping("Down") { Keys = new Keys[] { Keys.S, Keys.Down }, GamepadButtons = new Buttons[] { Buttons.DPadUp, Buttons.LeftThumbstickUp, Buttons.RightThumbstickUp } })
+                .RegisterMapping(new InputMapping("Up") { Keys = new Keys[] { Keys.W, Keys.Up }, GamepadButtons = new Buttons[] { Buttons.DPadUp, Buttons.LeftThumbstickUp, Buttons.RightThumbstickUp } })
+                .RegisterMapping(new InputMapping("Down") { Keys = new Keys[] { Keys.S, Keys.Down }, GamepadButtons = new Buttons[] { Buttons.DPadDown, Buttons.LeftThumbstickDown, Buttons.RightThumbstickDown } })
                 .RegisterMapping(new InputMapping("Left") { Keys = new Keys[] { Keys.A, Keys.Left }, GamepadButtons = new Buttons[] { Buttons.DPadLeft, Buttons.LeftThumbstickLeft, Buttons.RightThumbstickLeft } })
                 .RegisterMapping(new InputMapping("Right") { Keys = new Keys[] { Keys.D, Keys.Right }, GamepadButtons = new Buttons[] { Buttons.DPadRight, Buttons.LeftThumbstickRight, Buttons.RightThumbstickRight } })
-                .RegisterMapping(new InputMapping("Fart") { Keys = new Keys[] { Keys.Space, Keys.LeftShift }, GamepadButtons = new Buttons[] { Buttons.LeftShoulder, Buttons.RightShoulder } });
+                .RegisterMapping(new InputMapping("Fart") { Keys = new Keys[] { Keys.Space }, GamepadButtons = new Buttons[] { Buttons.LeftShoulder, Buttons.RightShoulder } })
+                .RegisterMapping(new InputMapping("Air") { Keys = new Keys[] { Keys.LeftShift }, GamepadButtons = new Buttons[] { Buttons.LeftTrigger, Buttons.RightTrigger } });
+
 
             input = new InputHandler(PlayerIndex.One);
 
@@ -70,34 +72,44 @@ namespace KeepStalling
         {
             input.Update();
 
-            Vector2 initialPosition = player.Position;
 
             float speed = 60 * Engine.DeltaTime;
+            Vector2 playerVelocity = Vector2.Zero;
             if (input.Pressing("up"))
             {
-                player.Y -= speed;
+                playerVelocity = new Vector2(playerVelocity.X, -1);
             }
             if (input.Pressing("down"))
             {
-                player.Y += speed;
+                playerVelocity = new Vector2(playerVelocity.X, 1);
             }
             if (input.Pressing("left"))
             {
-                player.X -= speed;
+                playerVelocity = new Vector2(-1, playerVelocity.Y);
             }
             if (input.Pressing("right"))
             {
-                player.X += speed;
+                playerVelocity = new Vector2(1, playerVelocity.Y);
             }
 
-            if (player.Position == initialPosition)
+
+            if (playerVelocity == Vector2.Zero)
             {
+                // Not Moving
                 dtSpeed = 1000 * Engine.DeltaTime;
                 targetAmplitude = 0.2f;
                 dt += dtSpeed * 0.75f;
             }
             else
             {
+                playerVelocity.Normalize();
+                playerVelocity *= speed;
+
+                player.X += playerVelocity.X;
+                player.Y += playerVelocity.Y;
+
+
+                // MOving
                 dtSpeed = 200 * Engine.DeltaTime;
                 targetAmplitude = 0.1f;
                 dt += dtSpeed * 5f;
@@ -129,7 +141,7 @@ namespace KeepStalling
             }
 
             player.Rotation = (float)Math.Sin(dt * 0.01f) * amplitude;
-            player.Scale = new Vector2( (float)Math.Sin(dt * 0.01f) * 0.1f + 1, 1);
+            player.Scale = new Vector2((float)Math.Sin(dt * 0.01f) * 0.1f + 1, 1);
 
             // FArts
             if (input.Pressed("fart"))
@@ -137,7 +149,7 @@ namespace KeepStalling
                 int total = MoreRandom.Next(4, 32);
                 for (int i = 0; i < total; i++)
                 {
-                    Vector2 offset = Vector2Ext.Random() * MoreRandom.Next(16, 48 + 1);
+             Vector2 offset = Vector2Ext.Random() * MoreRandom.Next(16, 48 + 1);
                     farts.Add(new Gas(player.X + offset.X, player.Y + offset.Y));
                 }
 
@@ -151,6 +163,22 @@ namespace KeepStalling
                     fartSoundTracker.Reset();
                     fartSoundTracker.Start();
 
+                }
+            }
+
+            if (input.Pressing("air"))
+            {
+                int total = MoreRandom.Next(4, 8);
+                for (int i = 0; i < total; i++)
+                {
+                    Vector2 offset = Vector2Ext.Random() * MoreRandom.Next(8, 16 + 1);
+                    Gas g = new Gas(player.X + offset.X, player.Y + offset.Y).Crazy();
+
+                    if (playerVelocity != Vector2.Zero)
+                    {
+                        g.AddToVelocity(-playerVelocity.X * 100, -playerVelocity.Y * 100);
+                    }
+                    farts.Add(g);
                 }
             }
 
@@ -195,10 +223,18 @@ namespace KeepStalling
             //Sketch.DisableRelay();
             Sketch.Begin();
             {
-                foreach (Gas g in farts)
+                // Not sure about tgus!
+                Polygon[] polygons = new Polygon[farts.Count];
+                for (int i = 0; i < polygons.Length; i++)
                 {
-                    g.Draw(Camera);
+                    polygons[i] = farts[i].Circle;
+
                 }
+                Batcher.DrawPolygons(polygons, Camera);
+
+                // foreach (Gas g in farts){
+                //     g.Draw(Camera);
+                // }
             }
             Sketch.End();
             //SketchHelper.ApplyGaussianBlur(Sketch.InterceptRelay(), 1);
