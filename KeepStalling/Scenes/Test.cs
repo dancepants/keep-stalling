@@ -31,6 +31,9 @@ namespace KeepStalling
         private Timer fartSoundTracker;
         private bool canFart;
 
+        private Timer airCooldown;
+        private Timer airTimer;
+
         public Test(string name) : base(name)
         {
             player = new Sprite(0, 0, "player");
@@ -58,6 +61,11 @@ namespace KeepStalling
 
             fartSoundTracker = new Timer(200);
             canFart = true;
+
+            airCooldown = new Timer(1000);
+            airTimer = new Timer(500);
+            airCooldown.Start();
+            airTimer.Start();
         }
 
         public override void LoadScene()
@@ -71,7 +79,6 @@ namespace KeepStalling
         public override void Update()
         {
             input.Update();
-
 
             float speed = 60 * Engine.DeltaTime;
             Vector2 playerVelocity = Vector2.Zero;
@@ -149,7 +156,7 @@ namespace KeepStalling
                 int total = MoreRandom.Next(4, 32);
                 for (int i = 0; i < total; i++)
                 {
-             Vector2 offset = Vector2Ext.Random() * MoreRandom.Next(16, 48 + 1);
+                    Vector2 offset = Vector2Ext.Random() * MoreRandom.Next(16, 48 + 1);
                     farts.Add(new Gas(player.X + offset.X, player.Y + offset.Y));
                 }
 
@@ -168,18 +175,31 @@ namespace KeepStalling
 
             if (input.Pressing("air"))
             {
-                int total = MoreRandom.Next(4, 8);
-                for (int i = 0; i < total; i++)
-                {
-                    Vector2 offset = Vector2Ext.Random() * MoreRandom.Next(8, 16 + 1);
-                    Gas g = new Gas(player.X + offset.X, player.Y + offset.Y).Crazy();
-
-                    if (playerVelocity != Vector2.Zero)
+                if (airCooldown.Done) {
+                    airTimer.Update();
+                    int total = MoreRandom.Next(4, 8);
+                    for (int i = 0; i < total; i++)
                     {
-                        g.AddToVelocity(-playerVelocity.X * 100, -playerVelocity.Y * 100);
+                        Vector2 offset = Vector2Ext.Random() * MoreRandom.Next(8, 16 + 1);
+                        Gas g = new Gas(player.X + offset.X, player.Y + offset.Y).Crazy();
+
+                        if (playerVelocity != Vector2.Zero)
+                        {
+                            g.AddToVelocity(-playerVelocity.X * 100, -playerVelocity.Y * 100);
+                        }
+                        farts.Add(g);
                     }
-                    farts.Add(g);
+                    if (airTimer.Done) {
+                        airCooldown.Reset();
+                        airTimer.Reset();
+                        airCooldown.Start();
+                        airTimer.Start();
+                    }
                 }
+            }
+            else
+            {
+                airCooldown.Update();
             }
 
             if (!canFart)
