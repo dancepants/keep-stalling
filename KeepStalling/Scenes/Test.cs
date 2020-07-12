@@ -93,7 +93,7 @@ namespace KeepStalling
             if (player.Position == initialPosition)
             {
                 dtSpeed = 1000 * Engine.DeltaTime;
-                targetAmplitude = 0.3f;
+                targetAmplitude = 0.2f;
                 dt += dtSpeed * 0.75f;
             }
             else
@@ -129,6 +129,7 @@ namespace KeepStalling
             }
 
             player.Rotation = (float)Math.Sin(dt * 0.01f) * amplitude;
+            player.Scale = new Vector2( (float)Math.Sin(dt * 0.01f) * 0.1f + 1, 1);
 
             // FArts
             if (input.Pressed("fart"))
@@ -136,7 +137,7 @@ namespace KeepStalling
                 int total = MoreRandom.Next(4, 32);
                 for (int i = 0; i < total; i++)
                 {
-                    Vector2 offset = Vector2Ext.Random() * MoreRandom.Next(4, 32 + 1);
+                    Vector2 offset = Vector2Ext.Random() * MoreRandom.Next(16, 48 + 1);
                     farts.Add(new Gas(player.X + offset.X, player.Y + offset.Y));
                 }
 
@@ -152,11 +153,6 @@ namespace KeepStalling
 
                 }
             }
-            else
-            {
-                player.Scale = Vector2.One;
-            }
-
 
             if (!canFart)
             {
