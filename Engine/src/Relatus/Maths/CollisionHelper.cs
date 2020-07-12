@@ -14,9 +14,9 @@ namespace Relatus.Maths
             public LineSegment Edge { get; private set; }
             public float Overlap { get; private set; }
 
-            public OverlapInformation(LineSegment edge, float overlap)
+            public OverlapInformation(LineSegment edge, float overlap, bool valid)
             {
-                Valid = true;
+                Valid = valid;
                 Edge = edge;
                 Overlap = overlap;
             }
@@ -27,10 +27,10 @@ namespace Relatus.Maths
             RectangleF aAABB = CalculateAABB(a.Vertices);
             RectangleF bAABB = CalculateAABB(b.Vertices);
 
-            if (!aAABB.Intersects(bAABB))
-            {
-                return new Vector2(0, 0);
-            }
+            // if (!aAABB.Intersects(bAABB))
+            // {
+            //     return new Vector2(0, 0);
+            // }
 
             OverlapInformation pass0 = CalculateOverlap(a, b);
             OverlapInformation pass1 = CalculateOverlap(b, a);
@@ -77,7 +77,7 @@ namespace Relatus.Maths
                 yMax = Math.Max(yMax, vertices[i].Y);
             }
 
-            return new RectangleF(xMin, yMax, xMax - xMin, yMax - yMin);
+            return new RectangleF(xMin, yMax, xMax - xMin, yMin - yMax);
         }
 
         private static OverlapInformation CalculateOverlap(IShape2D a, IShape2D b)
@@ -122,11 +122,11 @@ namespace Relatus.Maths
 
                 if (maxProjectionB < minProjectionA || maxProjectionA < minProjectionB)
                 {
-                    return new OverlapInformation(new LineSegment(), -1);
+                    return new OverlapInformation(new LineSegment(), -1, false);
                 }
             }
 
-            return new OverlapInformation(edge, minOverlap);
+            return new OverlapInformation(edge, minOverlap, true);
         }
     }
 }

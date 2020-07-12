@@ -10,7 +10,7 @@ namespace Relatus.ECS
     /// </summary>
     public interface IPartitionable
     {
-        int Identifier { get; set; }
-        RectangleF Bounds { get; set; }
+        int Identifier { get; }
+        RectangleF Bounds { get; }
     }
 }

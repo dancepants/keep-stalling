@@ -1,15 +1,25 @@
 using System.Collections.Generic;
 using Relatus;
+using Relatus.ECS;
 using Relatus.Graphics;
+using Relatus.Maths;
 
 namespace KeepStalling
 {
-    class Table : RelatusObject
+    class Table : Entity, IPartitionable
     {
         private Sprite sprite;
-        public Table(float x, float y) : base(x, y, 139, 80)
+
+        public int Identifier { get => id; }
+        RectangleF IPartitionable.Bounds { get => Bounds; }
+
+        private int id;
+
+        public Table(float x, float y, int index) : base(x, y, 139, 41)
         {
+            Depth = (int) Y;
             sprite = new Sprite(x, y, "table");
+            id = index;
         }
 
         public override bool Equals(object obj)
@@ -38,20 +48,24 @@ namespace KeepStalling
             return base.ToString();
         }
 
-        public void Update(List<Gas> gasses)
+        public override void Update()
         {
-           foreach (Gas g in gasses) {
-               if (g.Collides(Bounds)) {
-                   g.Bounce();
-               }
-           }
+            List<Gas> gasses = ((Test) SceneManager.CurrentScene).Player.Farts;
+            foreach (Gas g in gasses)
+            {
+                if (g.Collides(Bounds))
+                {
+                    g.Bounce();
+                }
+            }
         }
 
-        public void Draw(Camera cam)
+        public override void Draw(Camera camera)
         {
             Sketch.Begin();
             {
-                sprite.Draw(cam);
+                sprite.Draw(camera);
+                //new Quad(Bounds.X, Bounds.Y, Bounds.Width, Bounds.Height).Draw(cam);
             }
             Sketch.End();
         }

@@ -2,6 +2,7 @@ using Relatus;
 using Relatus.ECS;
 using Relatus.Graphics;
 using Relatus.Input;
+using Relatus.Debug;
 using Microsoft.Xna.Framework;
 using System;
 using Relatus.Graphics.Effects;
@@ -12,9 +13,9 @@ using Relatus.Utilities;
 
 namespace KeepStalling
 {
-    class Player : RelatusObject
+    class Player : Entity 
     {
-        public List<Gas> farts { get; }
+        public List<Gas> Farts { get; }
         private InputHandler input;
         private Sprite sprite;
 
@@ -29,7 +30,10 @@ namespace KeepStalling
 
         private float dt, dtSpeed, amplitude, targetAmplitude;
 
-        public Player(float x, float y) : base(x, y, 98, 128)
+
+        private Quad debugBounds;
+
+        public Player(float x, float y) : base(x, y, 64, 48)
         {
             sprite = new Sprite(x, y, "player");
             sprite.RotationOffset = new Vector2(sprite.Width / 2, sprite.Height / 2);
@@ -45,7 +49,7 @@ namespace KeepStalling
             input = new InputHandler(PlayerIndex.One);
             input.LoadProfile(iprofile);
 
-            farts = new List<Gas>();
+            Farts = new List<Gas>();
 
             stepSoundTracker = new Timer(400);
             canStep = true;
@@ -57,16 +61,17 @@ namespace KeepStalling
             airTimer = new Timer(500);
             airCooldown.Start();
             airTimer.Start();
-        }
 
-        public override bool Equals(object obj)
-        {
-            return base.Equals(obj);
-        }
+            debugBounds = new Quad(X, Y, Width, Height)
+            {
+                LineWidth = 2
+            };
 
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
+            debugBounds.ApplyChanges();
+
+            DebugManager.RegisterDebugEntry(new DebugEntry("playerPos", "X:{0}, Y:{1}"));
+
+            SetPosition(X, Y);
         }
 
         public override void SetBounds(float x, float y, int width, int height)
@@ -77,14 +82,18 @@ namespace KeepStalling
         public override void SetPosition(float x, float y)
         {
             base.SetPosition(x, y);
-            sprite.SetPosition(x, y);
+            Depth = (int) Y;
+
+            sprite.SetPosition(X + Width / 2, Y + Height / 2);
+            debugBounds.SetPosition(X, Y);
+            debugBounds.ApplyChanges();
         }
 
         public override string ToString()
         {
             return base.ToString();
         }
-        public void Update(Camera cam)
+        public override void Update()
         {
             input.Update();
 
@@ -166,10 +175,10 @@ namespace KeepStalling
                 for (int i = 0; i < total; i++)
                 {
                     Vector2 offset = Vector2Ext.Random() * MoreRandom.Next(16, 48 + 1);
-                    farts.Add(new Gas(sprite.X + offset.X, sprite.Y + offset.Y));
+                    Farts.Add(new Gas(sprite.X + offset.X, sprite.Y + offset.Y));
                 }
 
-                cam.Shake(50, 4, 250);
+                SceneManager.CurrentScene.Camera.Shake(50, 4, 250);
 
                 if (canFart)
                 {
@@ -197,7 +206,7 @@ namespace KeepStalling
                         {
                             g.AddToVelocity(-playerVelocity.X * 100, -playerVelocity.Y * 100);
                         }
-                        farts.Add(g);
+                        Farts.Add(g);
                     }
                     if (airTimer.Done)
                     {
@@ -225,18 +234,51 @@ namespace KeepStalling
                 }
             }
 
-            for (int i = farts.Count - 1; i >= 0; i--)
+            for (int i = Farts.Count - 1; i >= 0; i--)
             {
-                farts[i].Update();
+                Farts[i].Update();
 
-                if (!farts[i].Lingering)
+                if (!Farts[i].Lingering)
                 {
-                    farts.RemoveAt(i);
+                    Farts.RemoveAt(i);
                 }
             }
 
+
+
+            TableCollision();
+
+            DebugManager.GetDebugEntry("playerPos").SetInformation(X, Y);
         }
-        public void Draw(Camera cam)
+
+        private void TableCollision()
+        {
+            Quadtree<Table> bin = ((Test)SceneManager.CurrentScene).TableQuadtree;
+
+            int buffer = 16;
+            List<int> queryResult = bin.Query(new RectangleF(X - buffer, Y - buffer, Width + buffer * 2, Height + buffer * 2));
+
+
+            List<Table> tables = ((Test)SceneManager.CurrentScene).Tables;
+            foreach (int i in queryResult)
+            {
+                Vector2 resolution = Bounds.GetResolution(tables[i].Bounds);                
+                if (resolution != Vector2.Zero)
+                {
+                    debugBounds.Color = Color.Red;
+                    SetPosition(X - resolution.X, Y - resolution.Y);
+                }                
+                else{
+
+                    debugBounds.Color = Color.White;
+                }
+                debugBounds.ApplyChanges();
+            }
+
+
+        }
+
+        public override void Draw(Camera cam)
         {
             if (!canFart)
             {
@@ -249,15 +291,15 @@ namespace KeepStalling
             Sketch.Begin();
             {
                 // Not sure about tgus!
-                Polygon[] polygons = new Polygon[farts.Count];
+                Polygon[] polygons = new Polygon[Farts.Count];
                 for (int i = 0; i < polygons.Length; i++)
                 {
-                    polygons[i] = farts[i].Circle;
+                    polygons[i] = Farts[i].Circle;
 
                 }
                 Batcher.DrawPolygons(polygons, cam);
 
-                // foreach (Gas g in farts){
+                // foreach (Gas g in Farts){
                 //     g.Draw(Camera);
                 // }
             }
@@ -269,8 +311,16 @@ namespace KeepStalling
             Sketch.Begin();
             {
                 sprite.Draw(cam);
+
+
+                if (DebugManager.Debugging)
+                {
+                    debugBounds.Draw(cam);
+                }
             }
             Sketch.End();
+
+
         }
     }
 }

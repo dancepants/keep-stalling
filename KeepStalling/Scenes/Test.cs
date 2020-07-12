@@ -14,16 +14,32 @@ namespace KeepStalling
 {
     class Test : Scene
     {
-        private List<Table> tables;
+        public List<Table> Tables { get; private set; }
+        private List<RelatusObject> entities;
         private Sprite background;
-        private Player player;
+        public Player Player {get; private set;}
+
+        public Quadtree<Table> TableQuadtree {get; private set;}
+
         public Test(string name) : base(name)
         {
-            tables = new List<Table>();
+            Tables = new List<Table>();
+            entities = new List<RelatusObject>();
             background = new Sprite(0, 0, "background");
-            player = new Player(0, 0);
+            Player = new Player(0, 0);
+            entities.Add(Player);
 
-            tables.Add(new Table(50, 50));
+            Tables.Add(new Table(200, 50, Tables.Count));
+
+            TableQuadtree = new Quadtree<Table>(new RectangleF(0, 0, WindowManager.PixelWidth * 2, WindowManager.PixelHeight * 2), 256);
+
+            foreach (Table t in Tables)
+            {
+                TableQuadtree.Insert(t);
+                entities.Add(t);
+            }
+
+
         }
 
         public override void LoadScene()
@@ -36,19 +52,20 @@ namespace KeepStalling
 
         public override void Update()
         {
-            foreach (Table t in tables) t.Update(player.farts);
-            player.Update(Camera);
+            Camera.SmoothTrack(Player.Center);
+
+            foreach (Entity e in entities) e.Update();
         }
         public override void Draw()
         {
+            entities.Sort();
             Sketch.Begin();
             {
                 // background.Draw(Camera);
             }
             Sketch.End();
             // The following objects begins and ends Sketch internally
-            player.Draw(Camera);
-            foreach (Table t in tables) t.Draw(Camera);
+            foreach (Entity e in entities) e.Draw(Camera);
         }
     }
 }
