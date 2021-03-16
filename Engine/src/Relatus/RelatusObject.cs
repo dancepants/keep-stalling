@@ -16,7 +16,7 @@ namespace Relatus
         public int Depth { get; set; }
 
         public Vector2 Position { get => new Vector2(X, Y); }
-        public Vector2 Center { get => new Vector2(X + Width / 2, X + Height / 2); }
+        public Vector2 Center { get => new Vector2(X + Width / 2, Y + Height / 2); }
         public RectangleF Bounds { get => new RectangleF(X, Y, Width, Height); }
 
         public RelatusObject(float x, float y, int width, int height)

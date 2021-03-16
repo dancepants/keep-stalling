@@ -37,7 +37,7 @@ namespace Relatus
         public static int WindowHeight { get => Engine.Graphics.PreferredBackBufferHeight; }
         public static RenderTarget2D RenderTarget { get; private set; }
         public static OrientationType Orientation { get; private set; }
-        public static string Title { get; set; }
+        public static string Title { get => Engine.Instance.Window.Title; }
         public static bool Fullscreen { get; private set; }
         public static bool IsWideScreen { get; private set; }
         public static bool WideScreenSupported { get; private set; }
@@ -129,8 +129,7 @@ namespace Relatus
         /// <param name="title">The title of the window.</param>
         public static void SetTitle(string title)
         {
-            Title = title;
-            Engine.Instance.Window.Title = Title;
+            Engine.Instance.Window.Title = title;
         }
 
         /// <summary>
